@@ -8,6 +8,10 @@ import rehypeRaw from "rehype-raw";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import Link from "next/link";
+import PostActions from "@/components/PostActions";
+
+// 캐시 무효화: 항상 최신 데이터 가져오기
+export const revalidate = 0;
 
 async function getPost(id: number) {
   const post = await prisma.post.findUnique({
@@ -59,12 +63,15 @@ export default async function PostPage({
         </ReactMarkdown>
       </div>
       <div className="mt-12 pt-8 border-t border-gray-200">
-        <Link
-          href="/"
-          className="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
-        >
-          목록으로 돌아가기
-        </Link>
+        <div className="flex justify-between items-center">
+          <Link
+            href="/"
+            className="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+          >
+            목록으로 돌아가기
+          </Link>
+          <PostActions postId={post.id} />
+        </div>
       </div>
     </article>
   );
