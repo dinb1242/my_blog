@@ -1,8 +1,36 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { isIpAllowed } from "@/lib/allowed-ips";
+
+function getClientIp(request: NextRequest): string | null {
+  const forwardedFor = request.headers.get('x-forwarded-for');
+  const realIp = request.headers.get('x-real-ip');
+  const cfConnectingIp = request.headers.get('cf-connecting-ip');
+  
+  if (cfConnectingIp) {
+    return cfConnectingIp.trim();
+  } else if (realIp) {
+    return realIp.trim();
+  } else if (forwardedFor) {
+    return forwardedFor.split(',')[0].trim();
+  } else if (request.ip) {
+    return request.ip;
+  }
+  
+  return null;
+}
 
 export async function POST(request: NextRequest) {
   try {
+    // IP 기반 권한 체크
+    const clientIp = getClientIp(request);
+    if (!isIpAllowed(clientIp)) {
+      return NextResponse.json(
+        { error: "게시글 작성 권한이 없습니다." },
+        { status: 403 }
+      );
+    }
+
     const body = await request.json();
     const { title, content } = body;
 

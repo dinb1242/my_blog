@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Link from "next/link";
+import WriteButton from "@/components/WriteButton";
 
 export const metadata: Metadata = {
   title: "My Blog",
@@ -30,12 +31,7 @@ export default function RootLayout({
                 >
                   홈
                 </Link>
-                <Link
-                  href="/posts/new"
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-                >
-                  글쓰기
-                </Link>
+                <WriteButton />
               </div>
             </div>
           </div>
