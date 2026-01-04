@@ -153,7 +153,7 @@ export default function EditPostPage() {
                         <div className="grid grid-cols-1 lg:grid-cols-2 border border-gray-300 rounded-lg overflow-hidden">
                             {/* 에디터 영역 */}
                             <div className="flex flex-col">
-                                <div className="bg-gray-50 px-4 py-2 border-b border-gray-300 flex items-center justify-between">
+                                <div className="bg-gray-50 px-4 border-b border-gray-300 flex items-center justify-between h-14">
                                     <span className="text-sm font-medium text-gray-700">
                                         에디터
                                     </span>
@@ -176,10 +176,14 @@ export default function EditPostPage() {
 
                             {/* 미리보기 영역 */}
                             <div className="flex flex-col border-t border-gray-300 lg:border-t-0 lg:border-l">
-                                <div className="bg-gray-50 px-4 py-2 border-b border-gray-300">
+                                <div className="bg-gray-50 px-4 border-b border-gray-300 flex items-center justify-between h-14">
                                     <span className="text-sm font-medium text-gray-700">
                                         미리보기
                                     </span>
+                                    {/* 높이 일치를 위한 빈 공간 */}
+                                    <div className="px-4 py-2 invisible pointer-events-none">
+                                        <span className="text-sm">📷 이미지</span>
+                                    </div>
                                 </div>
                                 <div
                                     className="flex-1 overflow-y-auto px-4 py-4 bg-white prose prose-sm max-w-none markdown-body"

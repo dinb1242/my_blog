@@ -39,7 +39,7 @@ export default function AuthGuard({ children }: AuthGuardProps) {
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-screen">
-                <p className="text-gray-500">권한을 확인하는 중...</p>
+                <p className="text-gray-500">로딩 중...</p>
             </div>
         );
     }
