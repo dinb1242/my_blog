@@ -40,18 +40,14 @@ export default async function Home() {
                   {post.title}
                 </h2>
               </Link>
-              <p className="text-gray-500 text-sm mb-4">
+              <p className="text-gray-500 text-sm">
                 {format(new Date(post.createdAt), "yyyy년 M월 d일", {
                   locale: ko,
                 })}
               </p>
-              <p className="text-gray-700 line-clamp-3">
-                {post.content.substring(0, 200)}
-                {post.content.length > 200 ? "..." : ""}
-              </p>
               <Link
                 href={`/posts/${post.id}`}
-                className="inline-block mt-4 text-blue-600 hover:underline"
+                className="inline-block mt-2 text-blue-600 hover:underline"
               >
                 더 읽기 →
               </Link>
