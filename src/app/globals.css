@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 코드 하이라이팅 스타일 - 라이트 테마 */
+@import "highlight.js/styles/github.css";
+
+:root {
+    --background: #ffffff;
+    --foreground: #171717;
+}
+
+body {
+    color: var(--foreground);
+    background: var(--background);
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer utilities {
+    .text-balance {
+        text-wrap: balance;
+    }
+}
+
+/* 마크다운 스타일링 */
+.markdown-body {
+    @apply prose prose-slate max-w-none;
+}
+
+.markdown-body pre {
+    @apply bg-gray-100 rounded-lg p-4 overflow-x-auto;
+}
+
+.markdown-body code {
+    @apply bg-gray-100 px-1 py-0.5 rounded text-sm;
+}
+
+.markdown-body pre code {
+    @apply bg-transparent p-0;
+}
+
+/* 코드 하이라이팅 기본 스타일 */
+.hljs {
+    @apply bg-transparent;
+}
+
+/* 코드 블록 스타일 */
+pre code.hljs {
+    display: block;
+    overflow-x: auto;
+    padding: 1em;
+}
+
+code.hljs {
+    padding: 3px 5px;
+}
