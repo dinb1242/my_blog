@@ -9,6 +9,7 @@ import rehypeHighlight from "rehype-highlight";
 import rehypeRaw from "rehype-raw";
 import AuthGuard from "@/components/AuthGuard";
 import Link from "next/link";
+import ImageUploadButton from "@/components/ImageUploadButton";
 
 export default function EditPostPage() {
     const router = useRouter();
@@ -19,6 +20,33 @@ export default function EditPostPage() {
     const [content, setContent] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [cursorPosition, setCursorPosition] = useState(0);
+
+    const handleImageInsert = (markdown: string) => {
+        const textarea = document.getElementById("content") as HTMLTextAreaElement;
+        if (textarea) {
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const newContent =
+                content.substring(0, start) + markdown + content.substring(end);
+            setContent(newContent);
+
+            // 커서 위치 조정
+            setTimeout(() => {
+                const newPosition = start + markdown.length;
+                textarea.setSelectionRange(newPosition, newPosition);
+                textarea.focus();
+            }, 0);
+        } else {
+            // fallback: 끝에 추가
+            setContent(content + "\n\n" + markdown);
+        }
+    };
+
+    const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setContent(e.target.value);
+        setCursorPosition(e.target.selectionStart);
+    };
 
     useEffect(() => {
         async function fetchPost() {
@@ -125,15 +153,20 @@ export default function EditPostPage() {
                         <div className="grid grid-cols-1 lg:grid-cols-2 border border-gray-300 rounded-lg overflow-hidden">
                             {/* 에디터 영역 */}
                             <div className="flex flex-col">
-                                <div className="bg-gray-50 px-4 py-2 border-b border-gray-300">
+                                <div className="bg-gray-50 px-4 py-2 border-b border-gray-300 flex items-center justify-between">
                                     <span className="text-sm font-medium text-gray-700">
                                         에디터
                                     </span>
+                                    <ImageUploadButton onImageInsert={handleImageInsert} />
                                 </div>
                                 <textarea
                                     id="content"
                                     value={content}
-                                    onChange={(e) => setContent(e.target.value)}
+                                    onChange={handleContentChange}
+                                    onSelect={(e) => {
+                                        const target = e.target as HTMLTextAreaElement;
+                                        setCursorPosition(target.selectionStart);
+                                    }}
                                     required
                                     className="flex-1 w-full px-4 py-4 border-0 focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white text-gray-900 font-mono text-sm resize-none"
                                     placeholder="# 제목&#10;&#10;게시글 내용을 마크다운 형식으로 작성하세요..."
@@ -174,7 +207,10 @@ export default function EditPostPage() {
                         </div>
 
                         <p className="mt-2 text-sm text-gray-500">
-                            마크다운 형식을 지원합니다. 자세한 문법은{" "}
+                            마크다운 형식을 지원합니다.{" "}
+                            <span className="font-medium">📷 이미지</span> 버튼을 클릭하여 이미지를 업로드하거나,{" "}
+                            외부 이미지 URL을 직접 입력할 수 있습니다 (예: <code className="bg-gray-100 px-1 py-0.5 rounded">![설명](https://example.com/image.jpg)</code>).
+                            자세한 문법은{" "}
                             <a
                                 href="https://www.markdownguide.org/"
                                 target="_blank"

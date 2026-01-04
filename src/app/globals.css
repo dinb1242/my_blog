@@ -39,6 +39,14 @@ body {
     @apply bg-transparent p-0;
 }
 
+/* 이미지 스타일링 */
+.markdown-body img {
+    @apply max-w-full h-auto rounded-lg my-4;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 /* 코드 하이라이팅 기본 스타일 */
 .hljs {
     @apply bg-transparent;
