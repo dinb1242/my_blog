@@ -14,9 +14,11 @@ model Post {
   id        Int      @id @default(autoincrement())
   title     String
   content   String   @db.Text
+  isDraft   Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([createdAt])
+  @@index([isDraft])
 }
 

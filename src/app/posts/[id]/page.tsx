@@ -16,6 +16,14 @@ export const revalidate = 0;
 async function getPost(id: number) {
   const post = await prisma.post.findUnique({
     where: { id },
+    select: {
+      id: true,
+      title: true,
+      content: true,
+      isDraft: true,
+      createdAt: true,
+      updatedAt: true,
+    },
   });
   return post;
 }
@@ -40,7 +48,14 @@ export default async function PostPage({
         ← 목록으로
       </Link>
       <header className="mb-8">
-        <h1 className="text-4xl font-bold mb-4">{post.title}</h1>
+        <h1 className="text-4xl font-bold mb-4">
+          {post.title || "(제목 없음)"}
+          {post.isDraft && (
+            <span className="ml-3 text-sm bg-yellow-100 text-yellow-800 px-3 py-1 rounded">
+              임시 저장
+            </span>
+          )}
+        </h1>
         <p className="text-gray-500 text-sm">
           작성일: {format(new Date(post.createdAt), "yyyy년 M월 d일 HH:mm", {
             locale: ko,

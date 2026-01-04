@@ -25,11 +25,23 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    // IP 기반 권한 체크
+    const clientIp = getClientIp(request);
+    const isAllowed = isIpAllowed(clientIp);
+
     const post = await prisma.post.findUnique({
       where: { id: Number(params.id) },
     });
 
     if (!post) {
+      return NextResponse.json(
+        { error: "게시글을 찾을 수 없습니다." },
+        { status: 404 }
+      );
+    }
+
+    // 허용되지 않은 IP는 임시 저장 게시글에 접근 불가
+    if (post.isDraft && !isAllowed) {
       return NextResponse.json(
         { error: "게시글을 찾을 수 없습니다." },
         { status: 404 }
@@ -61,20 +73,25 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const { title, content } = body;
+    const { title, content, isDraft } = body;
 
-    if (!title || !content) {
-      return NextResponse.json(
-        { error: "제목과 내용은 필수입니다." },
-        { status: 400 }
-      );
+    // 임시 저장이 아닌 경우에만 제목과 내용 필수 체크
+    const draftStatus = isDraft !== undefined ? isDraft : false;
+    if (!draftStatus) {
+      if (!title || !content) {
+        return NextResponse.json(
+          { error: "제목과 내용은 필수입니다." },
+          { status: 400 }
+        );
+      }
     }
 
     const post = await prisma.post.update({
       where: { id: Number(params.id) },
       data: {
-        title,
-        content,
+        title: title || "",
+        content: content || "",
+        isDraft: draftStatus,
       },
     });
 

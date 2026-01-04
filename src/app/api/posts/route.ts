@@ -32,19 +32,23 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { title, content } = body;
+    const { title, content, isDraft } = body;
 
-    if (!title || !content) {
-      return NextResponse.json(
-        { error: "제목과 내용은 필수입니다." },
-        { status: 400 }
-      );
+    // 임시 저장이 아닌 경우에만 제목과 내용 필수 체크
+    if (!isDraft) {
+      if (!title || !content) {
+        return NextResponse.json(
+          { error: "제목과 내용은 필수입니다." },
+          { status: 400 }
+        );
+      }
     }
 
     const post = await prisma.post.create({
       data: {
-        title,
-        content,
+        title: title || "",
+        content: content || "",
+        isDraft: isDraft || false,
       },
     });
 
@@ -58,9 +62,23 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    // IP 기반 권한 체크
+    const clientIp = getClientIp(request);
+    const isAllowed = isIpAllowed(clientIp);
+    
+    // 쿼리 파라미터에서 includeDrafts 확인
+    const searchParams = request.nextUrl.searchParams;
+    const includeDrafts = searchParams.get("includeDrafts") === "true";
+
     const posts = await prisma.post.findMany({
+      where: {
+        // 허용된 IP가 아니거나, includeDrafts가 false이면 임시 저장 게시글 제외
+        ...(isAllowed && includeDrafts
+          ? {}
+          : { isDraft: false }),
+      },
       orderBy: {
         createdAt: "desc",
       },

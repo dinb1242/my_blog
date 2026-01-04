@@ -18,6 +18,7 @@ export default function EditPostPage() {
 
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
+    const [isDraft, setIsDraft] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [cursorPosition, setCursorPosition] = useState(0);
@@ -57,6 +58,7 @@ export default function EditPostPage() {
                     const post = await response.json();
                     setTitle(post.title);
                     setContent(post.content);
+                    setIsDraft(post.isDraft || false);
                 } else {
                     alert("게시글을 불러올 수 없습니다.");
                     router.push("/");
@@ -75,7 +77,7 @@ export default function EditPostPage() {
         }
     }, [postId, router]);
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent, saveAsDraft: boolean = false) => {
         e.preventDefault();
         setIsSubmitting(true);
 
@@ -85,11 +87,17 @@ export default function EditPostPage() {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ title, content }),
+                body: JSON.stringify({
+                    title,
+                    content,
+                    isDraft: saveAsDraft
+                }),
             });
 
             if (response.ok) {
-                // 페이지 이동 후 캐시 새로고침
+                if (saveAsDraft) {
+                    alert("임시 저장되었습니다.");
+                }
                 router.push(`/posts/${postId}`);
                 router.refresh();
             } else {
@@ -102,6 +110,10 @@ export default function EditPostPage() {
         } finally {
             setIsSubmitting(false);
         }
+    };
+
+    const handleSaveDraft = async (e: React.FormEvent) => {
+        await handleSubmit(e, true);
     };
 
     if (isLoading) {
@@ -118,7 +130,7 @@ export default function EditPostPage() {
         <AuthGuard>
             <div className="w-screen relative left-1/2 -translate-x-1/2 px-12 pb-20">
                 <h1 className="text-3xl font-bold mb-8">게시글 수정</h1>
-                <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
+                <form ref={formRef} onSubmit={(e) => handleSubmit(e, false)} className="space-y-6">
                     <div>
                         <label
                             htmlFor="title"
@@ -131,7 +143,6 @@ export default function EditPostPage() {
                             id="title"
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
-                            required
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
                             placeholder="게시글 제목을 입력하세요"
                         />
@@ -168,7 +179,6 @@ export default function EditPostPage() {
                                         const target = e.target as HTMLTextAreaElement;
                                         setCursorPosition(target.selectionStart);
                                     }}
-                                    required
                                     className="flex-1 w-full px-4 py-4 border-0 focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white text-gray-900 font-mono text-sm resize-none"
                                     placeholder="# 제목&#10;&#10;게시글 내용을 마크다운 형식으로 작성하세요..."
                                     style={{ minHeight: "600px" }}
@@ -241,14 +251,26 @@ export default function EditPostPage() {
                         >
                             나가기
                         </button>
-                        <button
-                            type="button"
-                            onClick={() => formRef.current?.requestSubmit()}
-                            disabled={isSubmitting}
-                            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {isSubmitting ? "저장 중..." : "저장하기"}
-                        </button>
+                        <div className="flex gap-3">
+                            {isDraft && (
+                                <button
+                                    type="button"
+                                    onClick={(e) => handleSaveDraft(e)}
+                                    disabled={isSubmitting}
+                                    className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {isSubmitting ? "저장 중..." : "임시 저장"}
+                                </button>
+                            )}
+                            <button
+                                type="button"
+                                onClick={() => formRef.current?.requestSubmit()}
+                                disabled={isSubmitting}
+                                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {isSubmitting ? "저장 중..." : isDraft ? "등록하기" : "저장하기"}
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
